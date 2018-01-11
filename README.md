@@ -5,8 +5,14 @@ The large-eddy simulation data provided along with this example is a subset of t
 
 `spod.m` is a stand-alone Matlab function with no toolbox dependencies. All other Matlab files contained in this repository are related to the six examples that demonstrate the functionality of the code (see file descriptions below). A physical interpretaion of the results obtained from the examples can be found in [[4](https://arxiv.org/abs/1711.06296)].
 
-## Files
+## Download
+### Using your browser
+Repository zip file with examples (81.5 MB): [https://github.com/SpectralPOD/spod_matlab/archive/master.zip](https://github.com/SpectralPOD/spod_matlab/archive/master.zip)
+Matlab function only (15 KB): [https://raw.githubusercontent.com/SpectralPOD/spod_matlab/master/spod.m](https://raw.githubusercontent.com/SpectralPOD/spod_matlab/master/spod.m)
+### Using Git in the terminal
+git clone https://github.com/SpectralPOD/spod_matlab.git
 
+## Files
 | File        |     Description     |
 | ------------- |:-------------|
 | spod.m | Spectral proper orthogonal decomposition in Matlab | 
