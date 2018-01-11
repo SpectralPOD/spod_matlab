@@ -3,11 +3,11 @@ SPOD() is a Matlab implementation of the frequency domain form of proper orthogo
 
 The large-eddy simulation data provided along with this example is a subset of the database of a Mach 0.9 turbulent jet described in [3] and was calculated using the unstructured flow solver Charles developed at Cascade Technologies. If you are using the database in your research or teaching, please include explicit mention of Brès et al. [3]. The test database consists of 5000 snapshots of the symmetric component (m=0) of a round turbulent jet. 
 
-`spod.m` is a stand-alone Matlab function with no toolbox dependencies. All other Matlab files are related to the six examples that demonstrate the functionality of the code. A physical interpretaion of the results obtained from the examples can be found in [[4](https://arxiv.org/abs/1711.06296)].
+`spod.m` is a stand-alone Matlab function with no toolbox dependencies. All other Matlab files contained in this repository are related to the six examples that demonstrate the functionality of the code (see file descriptions below). A physical interpretaion of the results obtained from the examples can be found in [[4](https://arxiv.org/abs/1711.06296)].
 
 ## Files
 
-| File        |          |
+| File        |     Description     |
 | ------------- |:-------------|
 | spod.m | Spectral proper orthogonal decomposition in Matlab | 
 | example_1.m | Inspect data and plot SPOD spectrum | 
