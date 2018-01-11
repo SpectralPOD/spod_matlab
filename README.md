@@ -3,7 +3,7 @@ SPOD() is a Matlab implementation of the frequency domain form of proper orthogo
 
 The large-eddy simulation data provided along with this example is a subset of the database of a Mach 0.9 turbulent jet described in [3] and was calculated using the unstructured flow solver Charles developed at Cascade Technologies. If you are using the database in your research or teaching, please include explicit mention of Brès et al. [3]. The test database consists of 5000 snapshots of the symmetric component (m=0) of a round turbulent jet. 
 
-`spod.m` is a stand-alone Matlab function with no toolbox dependencies. All other Matlab files contained in this repository are related to the six examples that demonstrate the functionality of the code (see file descriptions below). A physical interpretaion of the results obtained from the examples can be found in [[4](https://arxiv.org/abs/1711.06296)].
+`spod.m` is a stand-alone Matlab function with no toolbox dependencies. All other Matlab files contained in this repository are related to the six examples that demonstrate the functionality of the code (see file descriptions below). A physical interpretation of the results obtained from the examples can be found in [[4](https://arxiv.org/abs/1711.06296)].
 
 ## Download
 
@@ -27,7 +27,7 @@ git clone https://github.com/SpectralPOD/spod_matlab.git
 | example_5.m | Calculate full SPOD spectrum of large data | 
 | example_6.m | Calculate and plot confidence intervals for SPOD eigenvalues | 
 | jet_data/getjet.m | Interfaces external data source with SPOD() (examples 4-5) | 
-| utils/trapzWeightsPolar.m | Integration weight matrix for cylindical coordinates (examples 3-6) | 
+| utils/trapzWeightsPolar.m | Integration weight matrix for cylindrical coordinates (examples 3-6) | 
 | utils/jetLES.mat | Mach 0.9 turbulent jet test database | 
 | LICENSE.txt | License | 
 
