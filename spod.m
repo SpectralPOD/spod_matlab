@@ -43,11 +43,13 @@ function [L,P,f,Lc] = spod(X,varargin)
 %   OPTS.deletefft: delete FFT blocks after calculation is completed [{true} | false]
 %   OPTS.savedir: directory where FFT blocks and results are saved [ string | {'results'}]
 %   OPTS.savefreqs: save results for specified frequencies only [ vector | {all} ]
-%   OPTS.mean: provide a mean that is subtracted from each snapshot [ array of size X | {temporal mean of X; 0 if XFUN} ]
+%   OPTS.loadfft: load previously saved FFT blocks instead of recalculating [{false} | true]
+%   OPTS.mean: provide a mean that is subtracted from each snapshot [ array of size X | 'blockwise' | {temporal mean of X; 0 if XFUN} ]
 %   OPTS.nsave: number of most energtic modes to be saved [ integer | {all} ]
 %   OPTS.isreal: complex-valuedity of X or represented by XFUN [{determined from X or first snapshot if XFUN is used} | logical ]
 %   OPTS.nt: number of snapshots [ integer | {determined from X; defaults to 10000 if XFUN is used}]
 %   OPTS.conflvl: confidence interval level [ scalar between 0 and 1 | {0.95} ]
+%   OPTS.normvar: normalize each block by pointwise variance [{false} | true]
 %
 %   [L,PFUN,F] = SPOD(...,OPTS) returns a function PFUN instead of the SPOD
 %   data matrix P if OPTS.savefft is true. The function returns the j-th
@@ -76,7 +78,7 @@ function [L,P,f,Lc] = spod(X,varargin)
 %         1970
 %
 % O. T. Schmidt (oschmidt@caltech.edu), A. Towne, T. Colonius
-% Last revision: 5-Jan-2018
+% Last revision: 14-May-2018
 
 if nargin==6
     opts = varargin{5};
@@ -193,10 +195,9 @@ if opts.savefft
     if ~isfield(opts,'savefreqs'),  opts.savefreqs  = 1:nFreq;   end
     if ~isfield(opts,'deletefft'),  opts.deletefft  = true;      end    
     omitFreqIdx = 1:nFreq; omitFreqIdx(opts.savefreqs) = []; 
-end
-% !!!!! DOCUMENT FEATURE    
-    if ~isfield(opts,'loadfft'),    opts.loadfft    = false;     end    
-    if ~isfield(opts,'normvar'),    opts.normvar    = false;     end     
+end 
+if ~isfield(opts,'loadfft'),    opts.loadfft    = false;     end
+if ~isfield(opts,'normvar'),    opts.normvar    = false;     end
 
 % loop over number of blocks and generate Fourier realizations
 disp(' ')
@@ -262,13 +263,6 @@ for iBlk    = 1:nBlks
             % keep FFT blocks in memory
             Q_hat(:,:,iBlk)         = Q_blk_hat;
         else
-            % REPLACE -- MATFILE() PARTIAL LOAD TO SLOW
-            %         % save FFT blocks to harddrive
-            %         file = fullfile(saveDir,['fft_block' num2str(iBlk,'%.4i')]);
-            %         % save only user specified frequencies in sparse matrix
-            %         Q_blk_hat(omitFreqIdx,:)    = 0;
-            %         Q_blk_hat                   = sparse(Q_blk_hat);
-            %         save(file,'Q_blk_hat','-v7.3');
             for iFreq = opts.savefreqs
                 file = fullfile(saveDir,['fft_block' num2str([iBlk iFreq],'%.4i_freq%.4i')]);
                 Q_blk_hat_fi        = single(Q_blk_hat(iFreq,:));
@@ -310,11 +304,6 @@ else
         disp(['frequency ' num2str(iFreq) '/' num2str(nFreq) ' (f=' num2str(f(iFreq),'%.3g') ')'])
         % load FFT data from previously saved file
         Q_hat_f             = zeros(nx,nBlks);
-% REPLACE -- MATFILE() PARTIAL LOAD TO SLOW          
-%         for iBlk    = 1:nBlks
-%             file    = matfile(fullfile(saveDir,['fft_block' num2str(iBlk,'%.4i')]));
-%             Q_hat_f(:,iBlk) = file.Q_blk_hat(iFreq,:);
-%         end
         for iBlk    = 1:nBlks
             file    = fullfile(saveDir,['fft_block' num2str([iBlk iFreq],'%.4i_freq%.4i')]);
             load(file,'Q_blk_hat_fi');
