@@ -53,7 +53,8 @@ function [L,P,f,Lc] = spod(X,varargin)
 %   data matrix P if OPTS.savefft is true. The function returns the j-th
 %   most energetic SPOD mode at the i-th frequency as p = PFUN(i,j) by
 %   reading the modes from the saved files. Saving the data on the hard
-%   drive avoids memory problems when P is large.
+%   drive avoids memory problems when P is large. The modal energy spectra
+%   are returned in L, and saved in a separate file 'spod_energy.mat'.
 %
 %   [L,P,F,Lc] = SPOD(...) returns the confidence interval Lc of L. By
 %   default, the lower and upper 95% confidence levels of the j-th
@@ -92,7 +93,7 @@ if isa(X, 'function_handle')
     if isfield(opts,'nt')
         nt  = opts.nt;
     else
-        warning(['Plesse specify number of snapshots in "opts.nt".' ...
+        warning(['Please specify number of snapshots in "opts.nt".' ...
         ' Trying to use default value of 10000 snapshots.'])
         nt  = 10000;
     end
@@ -126,16 +127,35 @@ end
 % determine correction for FFT window gain
 winWeight   = 1/mean(window);
 
-% Use data mean if not provided through "opts.mean". 
+% Use data mean if not provided through "opts.mean".
+blk_mean    = false;
 if isfield(opts,'mean')
-    x_mean      = opts.mean(:);
-elseif ~xfun
-    x_mean      = mean(X,1);
-    x_mean      = x_mean(:);
-else
-    x_mean      = 0;
-    warning('No mean subtracted. Consider providing long-time mean through "opts.mean" for better accuracy at low frequencies.');
+    if strcmp('blockwise',opts.mean)
+        blk_mean    = true;       
+    end
 end
+switch xfun
+    case true
+        if isfield(opts,'mean')&&(~blk_mean)
+            x_mean      = opts.mean(:);
+            mean_name   = 'user specified';
+        elseif blk_mean
+            mean_name   = 'blockwise mean';
+        else
+            x_mean      = 0;
+            warning('No mean subtracted. Consider providing long-time mean through "opts.mean" for better accuracy at low frequencies.');            
+            mean_name   = '0';
+        end
+    case false
+        if blk_mean
+            mean_name   = 'blockwise mean';
+        else
+            x_mean      = mean(X,1);
+            x_mean      = x_mean(:);
+            mean_name   = 'long-time (true) mean';
+        end
+end
+disp(['Mean                      : ' mean_name]);
 
 % obtain frequency axis
 f = (0:nDFT-1)/dt/nDFT;
@@ -171,10 +191,12 @@ if opts.savefft
     if ~exist(saveDir,'dir'),       mkdir(saveDir);              end
     if ~isfield(opts,'nsave'),      opts.nsave      = nBlks;     end
     if ~isfield(opts,'savefreqs'),  opts.savefreqs  = 1:nFreq;   end
-    if ~isfield(opts,'deletefft'),  opts.deletefft  = true;     end
+    if ~isfield(opts,'deletefft'),  opts.deletefft  = true;      end    
     omitFreqIdx = 1:nFreq; omitFreqIdx(opts.savefreqs) = []; 
 end
-
+% !!!!! DOCUMENT FEATURE    
+    if ~isfield(opts,'loadfft'),    opts.loadfft    = false;     end    
+    if ~isfield(opts,'normvar'),    opts.normvar    = false;     end     
 
 % loop over number of blocks and generate Fourier realizations
 disp(' ')
@@ -185,38 +207,74 @@ if ~opts.savefft
 end
 Q_blk       = zeros(nDFT,nx);
 for iBlk    = 1:nBlks
-    % get time index for present block
-    offset                  = min((iBlk-1)*(nDFT-nOvlp)+nDFT,nt)-nDFT;
-    timeIdx                 = (1:nDFT) + offset;
-    disp(['block ' num2str(iBlk) '/' num2str(nBlks) ' (' ...
-        num2str(timeIdx(1)) ':' num2str(timeIdx(end)) ')'])
-    % build present block
-    if xfun
-        for ti = timeIdx
-            x                  = X(ti);
-            Q_blk(ti-offset,:) = x(:) - x_mean;
+    
+    % check if all FFT files are pre-saved
+    all_exist   = 0;
+    if opts.loadfft        
+        for iFreq = opts.savefreqs            
+            if ~isempty(dir(fullfile(saveDir,['fft_block' num2str([iBlk iFreq],'%.4i_freq%.4i')])))
+                all_exist   = all_exist + 1;
+            end
         end
-    else
-        Q_blk = bsxfun(@minus,X(timeIdx,:),x_mean.');
     end
-    % window and Fourier transform block
-    Q_blk                   = bsxfun(@times,Q_blk,window);
-    Q_blk_hat               = winWeight/nDFT*fft(Q_blk);
-    Q_blk_hat               = Q_blk_hat(1:nFreq,:);
-    % correct Fourier coefficients for one-sided spectrum
-    if isrealx
-        Q_blk_hat(2:end-1,:)    = 2*Q_blk_hat(2:end-1,:);
-    end
-    if ~opts.savefft
-        % keep FFT blocks in memory
-        Q_hat(:,:,iBlk)         = Q_blk_hat;
+    if all_exist==length(opts.savefreqs)
+        disp(['found pre-saved FFT of block ' num2str(iBlk) '/' num2str(nBlks)])
     else
-        % save FFT blocks to harddrive
-        file = fullfile(saveDir,['fft_block' num2str(iBlk,'%.4i')]);        
-        % save only user specified frequencies in sparse matrix
-        Q_blk_hat(omitFreqIdx,:)    = 0;
-        Q_blk_hat                   = sparse(Q_blk_hat);
-        save(file,'Q_blk_hat','-v7.3');
+        
+        % get time index for present block
+        offset                  = min((iBlk-1)*(nDFT-nOvlp)+nDFT,nt)-nDFT;
+        timeIdx                 = (1:nDFT) + offset;
+        disp(['block ' num2str(iBlk) '/' num2str(nBlks) ' (' ...
+            num2str(timeIdx(1)) ':' num2str(timeIdx(end)) ')'])
+        % build present block
+        if blk_mean, x_mean = 0; end
+        if xfun
+            for ti = timeIdx
+                x                  = X(ti);
+                Q_blk(ti-offset,:) = x(:) - x_mean;
+            end
+        else
+            Q_blk   = bsxfun(@minus,X(timeIdx,:),x_mean.');
+        end
+        % if block mean is to be subtracted, do it now that all data is
+        % collected
+        if blk_mean
+            Q_blk   = bsxfun(@minus,Q_blk,mean(Q_blk,1));           
+        end        
+        
+        % normalize by pointwise variance
+        if opts.normvar
+            Q_var   = sum(bsxfun(@minus,Q_blk,mean(Q_blk,1)).^2,1)/(nDFT-1);
+            % address division-by-0 problem with NaNs             
+            Q_var(Q_var<4*eps)  = 1; 
+            Q_blk   = bsxfun(@rdivide,Q_blk,Q_var);
+        end        
+        
+        % window and Fourier transform block
+        Q_blk                   = bsxfun(@times,Q_blk,window);
+        Q_blk_hat               = winWeight/nDFT*fft(Q_blk);
+        Q_blk_hat               = Q_blk_hat(1:nFreq,:);
+        % correct Fourier coefficients for one-sided spectrum
+        if isrealx
+            Q_blk_hat(2:end-1,:)    = 2*Q_blk_hat(2:end-1,:);
+        end
+        if ~opts.savefft
+            % keep FFT blocks in memory
+            Q_hat(:,:,iBlk)         = Q_blk_hat;
+        else
+            % REPLACE -- MATFILE() PARTIAL LOAD TO SLOW
+            %         % save FFT blocks to harddrive
+            %         file = fullfile(saveDir,['fft_block' num2str(iBlk,'%.4i')]);
+            %         % save only user specified frequencies in sparse matrix
+            %         Q_blk_hat(omitFreqIdx,:)    = 0;
+            %         Q_blk_hat                   = sparse(Q_blk_hat);
+            %         save(file,'Q_blk_hat','-v7.3');
+            for iFreq = opts.savefreqs
+                file = fullfile(saveDir,['fft_block' num2str([iBlk iFreq],'%.4i_freq%.4i')]);
+                Q_blk_hat_fi        = single(Q_blk_hat(iFreq,:));
+                save(file,'Q_blk_hat_fi','-v7.3');
+            end
+        end
     end
 end
 
@@ -252,9 +310,15 @@ else
         disp(['frequency ' num2str(iFreq) '/' num2str(nFreq) ' (f=' num2str(f(iFreq),'%.3g') ')'])
         % load FFT data from previously saved file
         Q_hat_f             = zeros(nx,nBlks);
+% REPLACE -- MATFILE() PARTIAL LOAD TO SLOW          
+%         for iBlk    = 1:nBlks
+%             file    = matfile(fullfile(saveDir,['fft_block' num2str(iBlk,'%.4i')]));
+%             Q_hat_f(:,iBlk) = file.Q_blk_hat(iFreq,:);
+%         end
         for iBlk    = 1:nBlks
-            file    = matfile(fullfile(saveDir,['fft_block' num2str(iBlk,'%.4i')]));
-            Q_hat_f(:,iBlk) = file.Q_blk_hat(iFreq,:);
+            file    = fullfile(saveDir,['fft_block' num2str([iBlk iFreq],'%.4i_freq%.4i')]);
+            load(file,'Q_blk_hat_fi');
+            Q_hat_f(:,iBlk) = Q_blk_hat_fi;
         end
         M                   = Q_hat_f'*bsxfun(@times,Q_hat_f,weight)/nBlks;
         [Theta,Lambda]      = eig(M);
@@ -264,7 +328,7 @@ else
         Psi                 = Q_hat_f*Theta*diag(1./sqrt(Lambda)/sqrt(nBlks));
         % Theta               = Theta*diag(sqrt(Lambda)*sqrt(nBlks));
         if opts.nsave>0
-            Psi             = reshape(Psi(:,1:opts.nsave),[dim(2:end) opts.nsave]);
+            Psi             = single(reshape(Psi(:,1:opts.nsave),[dim(2:end) opts.nsave]));
             file            = fullfile(saveDir,['spod_f' num2str(iFreq,'%.4i')]);
             save(file,'Psi','-v7.3');
         else
@@ -284,11 +348,16 @@ else
     L   = sparse(L);
     Lc  = sparse(Lc);
     
+    file            = fullfile(saveDir,'spod_energy');
+    save(file,'L','Lc','f','-v7.3');
+    
     % clean up
-    if opts.savefft && opts.deletefft
-        for iBlk    = 1:nBlks
-            file = fullfile(saveDir,['fft_block' num2str(iBlk,'%.4i.mat')]); 
-            delete(file);
+    if opts.deletefft
+        for iFreq = opts.savefreqs
+            for iBlk    = 1:nBlks
+                file    = fullfile(saveDir,['fft_block' num2str([iBlk iFreq],'%.4i_freq%.4i.mat')]);
+                delete(file);
+            end
         end
     end
     
