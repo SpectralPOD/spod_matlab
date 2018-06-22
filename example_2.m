@@ -3,14 +3,14 @@
 %  subset of the database of a Mach 0.9 turbulent jet described in [1] and 
 %  was calculated using the unstructured flow solver Charles developed at 
 %  Cascade Technologies. If you are using the database in your research or 
-%  teaching, please include explicit mention of Brès et al. [1]. The test 
+%  teaching, please include explicit mention of Brï¿½s et al. [1]. The test 
 %  database consists of 5000 snapshots of the symmetric component (m=0) of 
 %  a round turbulent jet. A physical interpretaion of the SPOD results is 
 %  given in [2], and a comprehensive discussion and derivation of SPOD and
 %  many of its properties can be found in [3].
 %
 %   References:
-%     [1] G. A. Brès, P. Jordan, M. Le Rallic, V. Jaunet, A. V. G. 
+%     [1] G. A. Brï¿½s, P. Jordan, M. Le Rallic, V. Jaunet, A. V. G. 
 %         Cavalieri, A. Towne, S. K. Lele, T. Colonius, O. T. Schmidt, 
 %         Importance of the nozzle-exit boundary-layer state in subsonic 
 %         turbulent jets, submitted to JFM, 2017
@@ -47,8 +47,33 @@ for fi = [10 15 20]
     for mi = [1 2]
         subplot(3,2,count)
         contourf(x,r,real(squeeze(P(fi,:,:,mi))),11,'edgecolor','none'), axis equal tight, caxis(max(abs(caxis))*[-1 1])
-        xlabel('x'), ylabel('r'), title(['f=' num2str(f(fi),'%.2f') ', mode ' num2str(mi) ', \lambda=' num2str(L(fi,mi),'%.2g')])
+        xlabel('x'), ylabel('r'), title(['$f=' num2str(f(fi),'%.2f$') ', mode ' num2str(mi) ', $\lambda=' num2str(L(fi,mi),'%.2g$')])
         xlim([0 10]); ylim([0 2])
         count = count + 1;
     end
+end
+
+%% Animate the same modes.
+%   Note how all wavepackets travel at approximately the same phase
+%   speed c_ph. The reason is that their streamwise wavenumber k_x changes 
+%   with frequency such that c_ph = omega/k_x is approximately constant.
+figure
+nt      = 30;
+T       = 1/f(10);              % period of the 10th frequency
+time    = linspace(0,T,nt);     % animate over one period
+count = 1;
+for ti = 1:nt
+    for fi = [10 15 20]
+        for mi = [1 2]
+            subplot(3,2,count)
+            pcolor(x,r,real(squeeze(P(fi,:,:,mi)*exp(2i*pi*f(fi)*time(ti))))), shading interp, axis equal tight, caxis(max(abs(caxis))*[-1 1])
+            xlabel('x'), ylabel('r'), title(['$f=' num2str(f(fi),'%.2f$') ', mode ' num2str(mi) ', $\lambda=' num2str(L(fi,mi),'%.2g$')])
+            xlim([0 10]); ylim([0 2])
+            count = count + 1;
+            hold on
+        end
+    end
+    drawnow
+    hold off
+    count = 1;
 end

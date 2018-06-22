@@ -78,7 +78,7 @@ function [L,P,f,Lc] = spod(X,varargin)
 %         1970
 %
 % O. T. Schmidt (oschmidt@caltech.edu), A. Towne, T. Colonius
-% Last revision: 14-May-2018
+% Last revision: 12-June-2018
 
 if nargin==6
     opts = varargin{5};
@@ -187,12 +187,12 @@ else
 end
 
 % set defaults for options for saving FFT data blocks
+if ~isfield(opts,'savefreqs'),  opts.savefreqs  = 1:nFreq;   end
 if opts.savefft
     if ~isfield(opts,'savedir'),    opts.savedir   = pwd;        end
     saveDir = fullfile(opts.savedir,['nfft' num2str(nDFT) '_novlp' num2str(nOvlp) '_nblks' num2str(nBlks)]);
     if ~exist(saveDir,'dir'),       mkdir(saveDir);              end
-    if ~isfield(opts,'nsave'),      opts.nsave      = nBlks;     end
-    if ~isfield(opts,'savefreqs'),  opts.savefreqs  = 1:nFreq;   end
+    if ~isfield(opts,'nsave'),      opts.nsave      = nBlks;     end   
     if ~isfield(opts,'deletefft'),  opts.deletefft  = true;      end    
     omitFreqIdx = 1:nFreq; omitFreqIdx(opts.savefreqs) = []; 
 end 
@@ -212,14 +212,14 @@ for iBlk    = 1:nBlks
     % check if all FFT files are pre-saved
     all_exist   = 0;
     if opts.loadfft        
-        for iFreq = opts.savefreqs            
-            if ~isempty(dir(fullfile(saveDir,['fft_block' num2str([iBlk iFreq],'%.4i_freq%.4i')])))
+        for iFreq = opts.savefreqs
+            if ~isempty(dir(fullfile(saveDir,['fft_block' num2str([iBlk iFreq],'%.4i_freq%.4i.mat')])))
                 all_exist   = all_exist + 1;
             end
         end
     end
-    if all_exist==length(opts.savefreqs)
-        disp(['found pre-saved FFT of block ' num2str(iBlk) '/' num2str(nBlks)])
+    if opts.loadfft && all_exist==length(opts.savefreqs)
+        disp(['loading FFT of block ' num2str(iBlk) '/' num2str(nBlks) ' from file'])
     else
         
         % get time index for present block
