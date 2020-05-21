@@ -97,10 +97,10 @@ git clone https://github.com/SpectralPOD/spod_matlab.git
   distribution of the SPOD eigenvalues.
 
 ## References
-[1] Towne, A., Schmidt, O. T., Colonius, T., *Spectral proper orthogonal decomposition and its relationship to dynamic mode decomposition and resolvent analysis*, [arXiv:1708.04393](https://arxiv.org/abs/1708.04393), 2017
+[1] Towne, A., Schmidt, O. T., Colonius, T., *Spectral proper orthogonal decomposition and its relationship to dynamic mode decomposition and resolvent analysis*, J. of Fluid Mech. 847, 821–867, 2018
 
 [2] Lumley, J. L., *Stochastic tools in turbulence*, Academic Press, 1970
 
-[3] G. A. Brès, P. Jordan, M. Le Rallic, V. Jaunet, A. V. G. Cavalieri, A. Towne, S. K. Lele, T. Colonius, O. T. Schmidt,  *Importance of the nozzle-exit boundary-layer state in subsonic turbulent jets*, submitted to JFM, 2017
+[3] G. A. Brès, P. Jordan, M. Le Rallic, V. Jaunet, A. V. G. Cavalieri, A. Towne, S. K. Lele, T. Colonius, O. T. Schmidt,  *Importance of the nozzle-exit boundary-layer state in subsonic turbulent jets*, J. of Fluid Mech. 851, 83-124, 2018
 
-[4] Schmidt, O. T., Towne, A., Rigas, G.,  Colonius, T., Bres, G. A., *Spectral analysis of jet turbulence*, [arXiv:1711.06296](https://arxiv.org/abs/1711.06296), 2017    
+[4] Schmidt, O. T., Towne, A., Rigas, G.,  Colonius, T., Bres, G. A., *Spectral analysis of jet turbulence*, J. of Fluid Mech. 855, 953–982, 2018    
