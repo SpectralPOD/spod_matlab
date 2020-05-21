@@ -70,10 +70,9 @@ function [L,P,f,Lc] = spod(X,varargin)
 %   References:
 %     [1] Towne, A. and Schmidt, O. T. and Colonius, T., Spectral proper 
 %         orthogonal decomposition and its relationship to dynamic mode
-%         decomposition and resolvent analysis, arXiv:1708.04393, 2017
+%         decomposition and resolvent analysis, J. of Fluid Mech. 847, 821–867, 2018
 %     [2] Schmidt, O. T. and Towne, A. and Rigas, G. and Colonius, T. and 
-%         Bres, G. A., Spectral analysis of jet turbulence, 
-%         arXiv:1711.06296, 2017
+%         Bres, G. A., Spectral analysis of jet turbulence, J. of Fluid Mech. 855, 953–982, 2018
 %     [3] Lumley, J. L., Stochastic tools in turbulence, Academic Press, 
 %         1970
 %
