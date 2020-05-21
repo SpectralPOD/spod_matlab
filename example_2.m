@@ -10,19 +10,18 @@
 %  many of its properties can be found in [3].
 %
 %   References:
-%     [1] G. A. Br�s, P. Jordan, M. Le Rallic, V. Jaunet, A. V. G. 
+%     [1] G. A. Brès, P. Jordan, M. Le Rallic, V. Jaunet, A. V. G. 
 %         Cavalieri, A. Towne, S. K. Lele, T. Colonius, O. T. Schmidt, 
 %         Importance of the nozzle-exit boundary-layer state in subsonic 
-%         turbulent jets, submitted to JFM, 2017
+%         turbulent jets, J. of Fluid Mech. 851, 83-124, 2018
 %     [2] Schmidt, O. T. and Towne, A. and Rigas, G. and Colonius, T. and 
-%         Bres, G. A., Spectral analysis of jet turbulence, 
-%         arXiv:1711.06296, 2017
+%         Bres, G. A., Spectral analysis of jet turbulence, J. of Fluid Mech. 855, 953–982, 2018
 %     [3] Towne, A. and Schmidt, O. T. and Colonius, T., Spectral proper 
 %         orthogonal decomposition and its relationship to dynamic mode
-%         decomposition and resolvent analysis, arXiv:1708.04393, 2017
+%         decomposition and resolvent analysis, J. of Fluid Mech. 847, 821–867, 2018
 %
-% O. T. Schmidt (oschmidt@caltech.edu), A. Towne, T. Colonius
-% Last revision: 5-Jan-2018
+% O. T. Schmidt (oschmidt@ucsd.edu), A. Towne, T. Colonius
+% Last revision: 20-May-2020
 
 clc, clear variables
 addpath('utils')
