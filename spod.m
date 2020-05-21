@@ -76,8 +76,8 @@ function [L,P,f,Lc] = spod(X,varargin)
 %     [3] Lumley, J. L., Stochastic tools in turbulence, Academic Press, 
 %         1970
 %
-% O. T. Schmidt (oschmidt@caltech.edu), A. Towne, T. Colonius
-% Last revision: 12-June-2018
+% O. T. Schmidt (oschmidt@ucsd.edu), A. Towne, T. Colonius
+% Last revision: 20-May-2020
 
 if nargin==6
     opts = varargin{5};
