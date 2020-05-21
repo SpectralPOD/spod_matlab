@@ -3,26 +3,25 @@
 %  subset of the database of a Mach 0.9 turbulent jet described in [1] and 
 %  was calculated using the unstructured flow solver Charles developed at 
 %  Cascade Technologies. If you are using the database in your research or 
-%  teaching, please include explicit mention of Br�s et al. [1]. The test 
+%  teaching, please include explicit mention of Brès et al. [1]. The test 
 %  database consists of 5000 snapshots of the symmetric component (m=0) of 
 %  a round turbulent jet. A physical interpretaion of the SPOD results is 
 %  given in [2], and a comprehensive discussion and derivation of SPOD and
 %  many of its properties can be found in [3].
 %
 %   References:
-%     [1] G. A. Br�s, P. Jordan, M. Le Rallic, V. Jaunet, A. V. G. 
+%     [1] G. A. Brès, P. Jordan, M. Le Rallic, V. Jaunet, A. V. G. 
 %         Cavalieri, A. Towne, S. K. Lele, T. Colonius, O. T. Schmidt, 
 %         Importance of the nozzle-exit boundary-layer state in subsonic 
-%         turbulent jets, submitted to JFM, 2017
+%         turbulent jets, J. of Fluid Mech. 851, 83-124, 2018
 %     [2] Schmidt, O. T. and Towne, A. and Rigas, G. and Colonius, T. and 
-%         Bres, G. A., Spectral analysis of jet turbulence, 
-%         arXiv:1711.06296, 2017
+%         Bres, G. A., Spectral analysis of jet turbulence, J. of Fluid Mech. 855, 953–982, 2018
 %     [3] Towne, A. and Schmidt, O. T. and Colonius, T., Spectral proper 
 %         orthogonal decomposition and its relationship to dynamic mode
-%         decomposition and resolvent analysis, arXiv:1708.04393, 2017
+%         decomposition and resolvent analysis, J. of Fluid Mech. 847, 821–867, 2018
 %
-% O. T. Schmidt (oschmidt@caltech.edu), A. Towne, T. Colonius
-% Last revision: 5-Jan-2018
+% O. T. Schmidt (oschmidt@ucsd.edu), A. Towne, T. Colonius
+% Last revision: 20-May-2020
 
 clc, clear variables
 addpath('utils')
