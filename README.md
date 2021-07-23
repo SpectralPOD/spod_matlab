@@ -26,6 +26,8 @@ git clone https://github.com/SpectralPOD/spod_matlab.git
 | example_4.m | Calculate the SPOD of large data and save results on hard drive | 
 | example_5.m | Calculate full SPOD spectrum of large data | 
 | example_6.m | Calculate and plot confidence intervals for SPOD eigenvalues | 
+| example_7_FTanalysis.m | Frequency-time analysis | 
+| tcoeffs.m | Time-continuous expansion coefficients via convolution | 
 | jet_data/getjet.m | Interfaces external data source with SPOD() (examples 4-5) | 
 | utils/trapzWeightsPolar.m | Integration weight matrix for cylindrical coordinates (examples 3-6) | 
 | utils/jetLES.mat | Mach 0.9 turbulent jet test database | 
