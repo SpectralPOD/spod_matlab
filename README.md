@@ -3,8 +3,7 @@ SPOD() is a Matlab implementation of the frequency domain form of proper orthogo
 
 The large-eddy simulation data provided along with this example is a subset of the database of a Mach 0.9 turbulent jet described in [3] and was calculated using the unstructured flow solver Charles developed at Cascade Technologies. If you are using the database in your research or teaching, please include explicit mention of Brès et al. [3]. The test database consists of 5000 snapshots of the symmetric component (m=0) of a round turbulent jet. 
 
-`spod.m` is a stand-alone Matlab function with no toolbox dependencies. All other Matlab files contained in this repository are related to the six examples that demonstrate the functionality of the code (see file descriptions below). A physical interpretation of the results obtained from the examples can be found in [[4](https://arxiv.org/abs/1711.06296)].
-
+`spod.m` is a stand-alone Matlab function with no toolbox dependencies. All other Matlab files contained in this repository are related to the six examples that demonstrate the functionality of the code (see file descriptions below). A physical interpretation of the results obtained from the examples can be found in [[4](https://arxiv.org/abs/1711.06296)]. The reference for the frequency-time analsyis is [[5](https://arxiv.org/abs/2011.03644)].
 ## Download
 
 ### Using your browser
@@ -105,4 +104,6 @@ git clone https://github.com/SpectralPOD/spod_matlab.git
 
 [3] G. A. Brès, P. Jordan, M. Le Rallic, V. Jaunet, A. V. G. Cavalieri, A. Towne, S. K. Lele, T. Colonius, O. T. Schmidt,  *Importance of the nozzle-exit boundary-layer state in subsonic turbulent jets*, J. of Fluid Mech. 851, 83-124, 2018
 
-[4] Schmidt, O. T., Towne, A., Rigas, G.,  Colonius, T., Bres, G. A., *Spectral analysis of jet turbulence*, J. of Fluid Mech. 855, 953–982, 2018    
+[4] Schmidt, O. T., Towne, A., Rigas, G.,  Colonius, T., Bres, G. A., *Spectral analysis of jet turbulence*, J. of Fluid Mech. 855, 953–982, 2018
+
+[5] Nekkanti, A. and Schmidt, O. T., *Frequency-time analysis, low-rank reconstruction and denoising of turbulent flows using spectral POD*, arXiv preprint arXiv:2011.03644, 2021
