@@ -9,12 +9,12 @@ function [a] = tcoeffs(X,P,window,weight,nModes)
 %   be used. If WEIGHT is empty, a uniform weighting of 1 is used.
 %
 %   Reference:
-%     [1] A. Nekkanti, O. T. Schmidt, Frequency-time analysis, low-rank
-%     reconstruction and denoising of turbulent flows using spectral POD,
-%     arXiv:2011.03644, 2020
+%     [1] A. Nekkanti, O. T. Schmidt, Frequency–time analysis, low-rank 
+%         reconstruction and denoising of turbulent flows using SPOD, 
+%         Journal of Fluid Mechanics 926, A26, 2021
 %
 % A. Nekkanti (aknekkan@eng.ucsd.edu), O. T. Schmidt (oschmidt@ucsd.edu)
-% Last revision: 18-Dec-2020
+% Last revision: 12-Sep-2021 
 
 dims        = size(X);
 nt          = dims(1);
