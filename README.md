@@ -106,4 +106,4 @@ git clone https://github.com/SpectralPOD/spod_matlab.git
 
 [4] Schmidt, O. T., Towne, A., Rigas, G.,  Colonius, T., Bres, G. A., *Spectral analysis of jet turbulence*, J. of Fluid Mech. 855, 953–982, 2018
 
-[5] Nekkanti, A. and Schmidt, O. T., *Frequency-time analysis, low-rank reconstruction and denoising of turbulent flows using spectral POD*, arXiv preprint arXiv:2011.03644, 2021
+[5] Nekkanti, A. and Schmidt, O. T., *Frequency–time analysis, low-rank reconstruction and denoising of turbulent flows using SPOD* , J. of Fluid Mech. 926, A26, DOI 10.1017/jfm.2021.681, 2021
