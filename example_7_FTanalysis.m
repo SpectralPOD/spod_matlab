@@ -1,11 +1,12 @@
 %% EXAMPLE 7: Frequency-time analysis.
 %
 %   Reference:
-%     [1] A. Nekkanti, O. T. Schmidt, Frequency–time analysis, low-rank reconstruction and denoising of turbulent flows using SPOD, 
+%     [1] A. Nekkanti, O. T. Schmidt, Frequency–time analysis, low-rank
+%         reconstruction and denoising of turbulent flows using SPOD,
 %         Journal of Fluid Mechanics 926, A26, 2021
 %
 % A. Nekkanti (aknekkan@eng.ucsd.edu), O. T. Schmidt (oschmidt@ucsd.edu)
-% Last revision: 12-Sep-2021
+% Last revision: 5-Sep-2022 (OTS)
 
 clc, clear variables
 addpath('utils')
@@ -18,9 +19,8 @@ load(fullfile('jet_data','jetLES.mat'),'p','x','r','dt');
 nFFT  	= 128;
 nOvlp 	= floor(nFFT/2);
 weight 	= trapzWeightsPolar(r(:,1),x(1,:));
-window	= hann(nFFT);
 
-[L,P,f] = spod(p,window,weight,nOvlp,dt);
+[L,P,f] = spod(p,nFFT,weight,nOvlp,dt);
 
 figure 
 loglog(f,L)
@@ -30,7 +30,7 @@ xlabel('frequency'), ylabel('SPOD mode energy')
 %   We will compute the mode expansion coefficients of the first 3 modes
 %   using a windowing function and weights consistent with the SPOD.
 nModes          = 3;
-a               = tcoeffs(p,P,window,weight,nModes);
+a               = tcoeffs(p,P,nFFT,weight,nModes);
 
 %% Visualize the results.
 nt  = size(p,1);

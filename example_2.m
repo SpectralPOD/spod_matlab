@@ -3,7 +3,7 @@
 %  subset of the database of a Mach 0.9 turbulent jet described in [1] and 
 %  was calculated using the unstructured flow solver Charles developed at 
 %  Cascade Technologies. If you are using the database in your research or 
-%  teaching, please include explicit mention of Br�s et al. [1]. The test 
+%  teaching, please include explicit mention of Brès et al. [1]. The test 
 %  database consists of 5000 snapshots of the symmetric component (m=0) of 
 %  a round turbulent jet. A physical interpretaion of the SPOD results is 
 %  given in [2], and a comprehensive discussion and derivation of SPOD and
@@ -21,7 +21,7 @@
 %         decomposition and resolvent analysis, J. of Fluid Mech. 847, 821–867, 2018
 %
 % O. T. Schmidt (oschmidt@ucsd.edu), A. Towne, T. Colonius
-% Last revision: 20-May-2020
+% Last revision: 5-Sep-2022 (OTS)
 
 clc, clear variables
 addpath('utils')
@@ -46,7 +46,7 @@ for fi = [10 15 20]
     for mi = [1 2]
         subplot(3,2,count)
         contourf(x,r,real(squeeze(P(fi,:,:,mi))),11,'edgecolor','none'), axis equal tight, caxis(max(abs(caxis))*[-1 1])
-        xlabel('x'), ylabel('r'), title(['$f=' num2str(f(fi),'%.2f$') ', mode ' num2str(mi) ', $\lambda=' num2str(L(fi,mi),'%.2g$')])
+        xlabel('x'), ylabel('r'), title(['f=' num2str(f(fi),'%.2f') ', mode ' num2str(mi) ', \lambda=' num2str(L(fi,mi),'%.2g')])
         xlim([0 10]); ylim([0 2])
         count = count + 1;
     end
@@ -66,7 +66,7 @@ for ti = 1:nt
         for mi = [1 2]
             subplot(3,2,count)
             pcolor(x,r,real(squeeze(P(fi,:,:,mi)*exp(2i*pi*f(fi)*time(ti))))), shading interp, axis equal tight, caxis(max(abs(caxis))*[-1 1])
-            xlabel('x'), ylabel('r'), title(['$f=' num2str(f(fi),'%.2f$') ', mode ' num2str(mi) ', $\lambda=' num2str(L(fi,mi),'%.2g$')])
+            xlabel('x'), ylabel('r'), title(['f=' num2str(f(fi),'%.2f') ', mode ' num2str(mi) ', \lambda=' num2str(L(fi,mi),'%.2g')])
             xlim([0 10]); ylim([0 2])
             count = count + 1;
             hold on
