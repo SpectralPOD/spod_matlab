@@ -14,7 +14,7 @@ function [a] = tcoeffs(X,P,window,weight,nModes)
 %         Journal of Fluid Mechanics 926, A26, 2021
 %
 % A. Nekkanti (aknekkan@eng.ucsd.edu), O. T. Schmidt (oschmidt@ucsd.edu)
-% Last revision: 12-Sep-2021 
+% Last revision: 12-Sep-2022 
 
 dims        = size(X);
 nt          = dims(1);
@@ -59,7 +59,6 @@ disp('------------------------------------')
 for i=1:nt
     X_blk               = fft(X(i:i+nDFT-1,:).*window);
     X_blk               = X_blk(1:nFreq,:);
-    X_blk(2:end-1,:)    = 2*X_blk(2:end-1,:);
     % correction for windowing of zero-padded data
     if (i<ceil(nDFT/2)-1)
         corr 	= sqrt(winCorr_fac/sum(window(ceil(nDFT/2)-i+1:nDFT)));
