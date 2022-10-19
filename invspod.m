@@ -15,7 +15,7 @@ function [X] = invspod(P,A,window,nOvlp)
 %         Journal of Fluid Mechanics 926, A26, 2021
 %
 % O. T. Schmidt (oschmidt@ucsd.edu)
-% Last revision: 16-Jul-2022 
+% Last revision: 7-Oct-2022 
 
 dim     = size(P);
 if ndims(A)==2
@@ -24,6 +24,7 @@ else
     nBlks   = dim(end);
 end
 nFreqs  = dim(1);
+nModes  = size(A,2);
 if length(window)==1
     nDFT        = window;
     window      = hammwin(window);
@@ -53,7 +54,7 @@ for blk_i    = 1:nBlks
     xHatBlk(:)  = 0;
     
     % reconstruct Fourier realization
-    xHatBlk(1:nFreqs,:)     = squeeze(sum(P.*squeeze(A(:,:,blk_i)),2));
+    xHatBlk(1:nFreqs,:)     = squeeze(sum(P(:,1:nModes,:).*squeeze(A(:,:,blk_i)),2));
     if issymm
         xHatBlk(nDFT/2+2:end,:)  = conj(xHatBlk(nDFT/2:-1:2,:));
     end
