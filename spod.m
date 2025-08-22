@@ -91,7 +91,10 @@ function [L,P,f,Lc,A] = spod(X,varargin)
 %         https://rdcu.be/cUtP3
 %
 % O. T. Schmidt (oschmidt@ucsd.edu), A. Towne, T. Colonius
-% Last revision: 5-Sep-2022 (OTS)
+%
+% Revisions: 
+% 5-Sep-2022 (OTS)
+% 21-Aug-2025 (B. Yeung)
 
 if nargin==6
     opts = varargin{5};
@@ -139,8 +142,7 @@ end
 % get default spectral estimation parameters and options
 [window,weight,nOvlp,dt,nDFT,nBlks,nTapers] = spod_parser(nt,nx,isrealx,varargin{:});
 nSamples    = nBlks*nTapers;
-% determine correction for FFT window gain
-winWeight   = 1./mean(abs(window)); % row vector for multitaper                                          
+                                         
 % Use data mean if not provided through "opts.mean".
 blk_mean    = false;
 if isfield(opts,'mean')
@@ -269,7 +271,7 @@ for iBlk    = 1:nBlks
             num2str(timeIdx(1)) ':' num2str(timeIdx(end)) ')'])
             % window and Fourier transform block
             Q_blk_win               = bsxfun(@times,Q_blk,window(:,iTaper));
-            Q_blk_hat               = winWeight(iTaper)/nDFT*fft(Q_blk_win);
+            Q_blk_hat               = sqrt(dt)*fft(Q_blk_win);
             Q_blk_hat               = Q_blk_hat(1:nFreq,:);
             if ~opts.savefft
                 % keep FFT blocks in memory
@@ -446,6 +448,9 @@ else
     nDFT        = length(window);
     window_name = 'user specified';
 end
+
+% normalize window to unit power
+if size(window,2)==1, window = window/sqrt(sum(window.^2)); end
 
 nTapers     = size(window,2);
 weight      = weight(:);
