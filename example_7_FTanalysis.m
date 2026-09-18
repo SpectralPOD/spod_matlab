@@ -30,7 +30,7 @@ xlabel('frequency'), ylabel('SPOD mode energy')
 %% Frequency-time analysis.
 %   We will compute the mode expansion coefficients of the first 10 modes
 %   using a windowing function and weights consistent with the SPOD.
-nt              = size(p,1);
+nt              = 5000;%size(p,1);
 nModes          = 3;
 a               = tcoeffs(p(1:nt,:,:),P,nDFT,weight,nModes);
 

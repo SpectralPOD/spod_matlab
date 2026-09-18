@@ -115,8 +115,8 @@ is used, i.e. we assume a standard normal distribution of the SPOD
 eigenvalues.
 
 [L,P,F,Lc,A] = SPOD(...) returns the block-wise expansion coefficients 
-in A. INVSPOD(P,A,WINDOW,NOVLP) uses A to reconstruct the original data from
-the SPOD.
+in A. INVSPOD(P,A,WINDOW,NOVLP,DT) uses A to reconstruct the original data
+from the SPOD. DT must match the time step supplied to SPOD and defaults to 1.
 
 ## References
 [1] Towne, A., Schmidt, O. T., Colonius, T., *Spectral proper orthogonal decomposition and its relationship to dynamic mode decomposition and resolvent analysis*, J. of Fluid Mech. 847, 821–867, 2018
