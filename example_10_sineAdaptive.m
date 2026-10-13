@@ -1,17 +1,15 @@
 %% EXAMPLE 10: Adaptive sine-taper SPOD.
 %  The time-resolved particle image velocimetry data provided along with
 %  this example are a subset of the database of a Mach 0.6 turbulent open
-%  cavity flow described in [1] and collected by Louis Cattafesta, Yang
-%  Zhang, and others at Illinois Institute of Technology. If you are using
-%  the database in your research or teaching, please include explicit
-%  mention of Zhang et al. [1]. The test database consists of 4000
-%  snapshots of the streamwise velocity component of a turbulent open
-%  cavity flow. This is a canonical example of a mixed broadband-tonal
-%  turbulent flow, which requires sharp peak resolution at tonal
-%  frequencies and smooth spectrum estimates of broadband regions. A
-%  comprehensive discussion of sine-taper SPOD and the adaptive SPOD
-%  algorithm can be found in [2]. Confidence intervals are explained in
-%  [3].
+%  cavity flow by Zhang et al. [1]. If you are using the database in your
+%  research or teaching, please include explicit mention of Zhang et al.
+%  [1]. The test database consists of 4000 snapshots of the streamwise
+%  velocity component of a turbulent open cavity flow. This is a canonical
+%  example of a mixed broadband-tonal turbulent flow, which requires sharp
+%  peak resolution at tonal frequencies and smooth spectrum estimates of
+%  broadband regions. If you are using this code for your research, please
+%  cite Yeung & Schmidt [2]. For confidence intervals, please cite Yeung et
+%  al. [3].
 %
 %   References:
 %     [1] Zhang, Y., Cattafesta, L.N. and Ukeiley, L.,  Spectral analysis
@@ -26,11 +24,10 @@
 %
 % B. Yeung (yeung@caltech.edu) and O.T. Schmidt (oschmidt@ucsd.edu)
 % Original script: BY and OTS
-% Last revision:   11-Oct-2026 (BY)
+% Last revision:   12-Oct-2026 (BY)
 
 clc, clear variables
 addpath('utils')
-disp('Loading the entire test database might take a second...')
 load(fullfile('cavity_data','cavityPIV.mat'),'u','x','y','dt');
 
 %% Standard Welch SPOD of the test database using one sine window.
@@ -47,22 +44,12 @@ figure
 loglog(f,L)
 xlabel('frequency'), ylabel('SPOD mode energy'), title('Welch SPOD')
 
-figure
-count = 1;
-for fi = [20 30 50]
-    for mi = [1 2]
-        subplot(3,2,count)
-        contourf(x,y,real(squeeze(P(fi,:,:,mi))),11,'edgecolor','none'), axis equal tight, caxis(max(abs(caxis))*[-1 1])
-        xlabel('x'), ylabel('y'), title(['f=' num2str(f(fi),'%.2f') ', mode ' num2str(mi) ', \lambda=' num2str(L(fi,mi),'%.2g')])
-        count = count + 1;
-    end
-end
-
 %% Multitaper SPOD using six sine windows.
 %   We can achieve higher frequency resolution and resolve down to lower
 %   minimum frequencies using six sine windows of length equal to the
-%   number of snapshots. Specify nWin as a vector of length 4000. Multitaper
-%   SPOD neither requires nor benefits from overlap, so we leave nOvlp empty.
+%   number of snapshots. Specify nWin as a vector of length 4000.
+%   Multitaper SPOD neither requires nor benefits from overlap, so we leave
+%   nOvlp empty.
 
 %   SPOD using six sine windows of length 4000 and 0 overlap
 nWin    = 6*ones(size(u,1),1);
@@ -97,21 +84,33 @@ yyaxis right
 semilogx(f,nWin)
 ylabel('number of windows')
 
-%% Multitple SPOD using non-uniform window number.
-%   If the (potentially non-uniform) window number is known a priori, e.g.,
-%   based on physical knowledge, it can be provided directly. As an example,
-%   we use the nWin computed previously to recover the same results as before.
+%% Plot some SPOD modes (Rossiter modes)
+figure
+count = 1;
+for fi = [470 770 1063]
+    for mi = [1 2]
+        subplot(3,2,count)
+        contourf(x,y,real(squeeze(P(fi,:,:,mi))),11,'edgecolor','none'), axis equal tight, clim(max(abs(clim))*[-1 1])
+        xlabel('x'), ylabel('y'), title(['f=' num2str(f(fi),'%.2f') ', mode ' num2str(mi) ', \lambda=' num2str(L(fi,mi),'%.2g')])
+        count = count + 1;
+    end
+end
 
-%   SPOD using sine windows of length 4000, 0 overlap, and
-%   frequency-dependent window number
-if length(nWin)<size(u,1), nWin(size(u,1)) = 0; end % zero-pad nWin to length 4000
-[L,P,f] = spod_adapt(u,nWin,[],[],dt);
-
-%% Plot the SPOD spectrum.
-%   The spectrum should be identical to the previous figure.
-figure 
-loglog(f,L)
-xlabel('frequency'), ylabel('SPOD mode energy'), title('multitaper SPOD with non-uniform window number')
+% %% Multitple SPOD using non-uniform window number.
+% %   If the (potentially non-uniform) window number is known a priori, e.g.,
+% %   based on physical knowledge, it can be provided directly. As an example,
+% %   we use the nWin computed previously to recover the same results as before.
+% 
+% %   SPOD using sine windows of length 4000, 0 overlap, and
+% %   frequency-dependent window number
+% if length(nWin)<size(u,1), nWin(size(u,1)) = 0; end % zero-pad nWin to length 4000
+% [L,P,f] = spod_adapt(u,nWin,[],[],dt);
+% 
+% %% Plot the SPOD spectrum.
+% %   The spectrum should be identical to the previous figure.
+% figure 
+% loglog(f,L)
+% xlabel('frequency'), ylabel('SPOD mode energy'), title('multitaper SPOD with non-uniform window number')
 
 %% Confidence intervals.
 %   By assuming the eigenvalues are distributed as chi-squared, we can
