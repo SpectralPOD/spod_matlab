@@ -5,7 +5,7 @@ The large-eddy simulation data provided along with this example is a subset of t
 
 `spod.m` is a stand-alone Matlab function with no toolbox dependencies. All other Matlab files contained in this repository are related to the six examples that demonstrate the functionality of the code (see file descriptions below). A physical interpretation of the results obtained from the examples can be found in [[4](https://arxiv.org/abs/1711.06296)]. The reference for the frequency-time analsyis is [[5](https://arxiv.org/abs/2011.03644)].
 
-`spod_adaptive.m` is the adaptive sine-taper SPOD algorithm for broadband-tonal flows by Yeung & Schmidt [[7](https://arxiv.org/abs/2312.02385)]
+`spod_adapt.m` is the adaptive sine-taper SPOD algorithm for broadband-tonal flows by Yeung & Schmidt [[7](https://arxiv.org/abs/2312.02385)]
 
 ## Download
 
@@ -22,7 +22,7 @@ git clone https://github.com/SpectralPOD/spod_matlab.git
 | File        |     Description     |
 | ------------- |:-------------|
 | spod.m | Spectral proper orthogonal decomposition in Matlab | 
-| spod_adaptive.m | Adaptive sine-taper SPOD in Matlab |
+| spod_adapt.m | Adaptive sine-taper SPOD in Matlab |
 | example_1.m | Inspect data and plot SPOD spectrum | 
 | example_2.m | Plot SPOD spectrum and inspect SPOD modes | 
 | example_3.m | Specify spectral estimation parameters and use weighted inner product | 

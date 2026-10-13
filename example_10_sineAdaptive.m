@@ -8,18 +8,23 @@
 %  example of a mixed broadband-tonal turbulent flow, which requires sharp
 %  peak resolution at tonal frequencies and smooth spectrum estimates of
 %  broadband regions. If you are using this code for your research, please
-%  cite Yeung & Schmidt [2].
+%  cite Yeung & Schmidt [2]. For confidence intervals, please cite Yeung et
+%  al. [3].
 %
 %   References:
-%     [1] Zhang, Y., Cattafesta, L. N., and Ukeiley, L.,  Spectral analysis
+%     [1] Zhang, Y., Cattafesta, L.N. and Ukeiley, L.,  Spectral analysis
 %         modal methods (SAMMs) using non-time-resolved PIV, Exp. Fluids 61, 226, 1–12, 2020,
 %         DOI 10.1007/s00348-020-03057-8
-%     [2] Yeung, B. C. Y., Schmidt, O. T. Adaptive spectral proper orthogonal decomposition
+%     [2] Yeung, B.C.Y. and Schmidt, O.T., Adaptive spectral proper orthogonal decomposition
 %         of broadband-tonal flows, Theor. Comput. Fluid Dyn. 38, 355–374, 2024,
 %         DOI 10.1007/s00162-024-00695-0
+%     [3] Yeung, B., Stavropoulos, M.N., Jaunet, V., Jordan, P. and Schmidt, O.T.,
+%         (Why) Jets quantise trapped acoustic modes, arXiv 2026
+%         DOI 10.48550/arXiv.2610.07414
 %
-% B. Yeung (byeung@ucsd.edu) and O. T. Schmidt (oschmidt@ucsd.edu)
-% Last revision: 10-Sep-2024
+% B. Yeung (yeung@caltech.edu) and O.T. Schmidt (oschmidt@ucsd.edu)
+% Original script: BY and OTS
+% Last revision:   12-Oct-2026 (BY)
 
 clc, clear variables
 addpath('utils')
@@ -106,3 +111,22 @@ end
 % figure 
 % loglog(f,L)
 % xlabel('frequency'), ylabel('SPOD mode energy'), title('multitaper SPOD with non-uniform window number')
+
+%% Confidence intervals.
+%   By assuming the eigenvalues are distributed as chi-squared, we can
+%   estimate their confidence intervals. The confidence level can be set
+%   using OPTS.conflvl, which is 0.95 (i.e. 95%) by default.
+
+if length(nWin)<size(u,1), nWin(size(u,1)) = 0; end % zero-pad nWin to length 4000
+[L,P,f,~,~,Lc] = spod_adapt(u,nWin,[],[],dt);
+
+%% Plot the SPOD spectrum and confidence intervals.
+figure
+hold on
+for j = 1:size(L,2)
+    patch([f,flip(f)],[Lc(:,j,2);flip(Lc(:,j,1))],0.75*[1 1 1],'edgecol','no')
+end
+plot(f,L)
+hold off
+set(gca,'yscale','log')
+xlabel('frequency'), ylabel('SPOD mode energy'), title('multitaper SPOD with confidence intervals')

@@ -1,5 +1,5 @@
-function [L,P,f,A,nWin] = spod_adapt(X,varargin)
-%SPOD_ADAPT Adaptive sine-taper SPOD by Yeung & Schmidt[1]
+function [L,P,f,A,nWin,Lc] = spod_adapt(X,varargin)
+%SPOD_ADAPT Adaptive sine-taper SPOD by Yeung & Schmidt [1]
 %   [L,P,F] = SPOD_ADAPT(X) returns the spectral proper orthogonal decomposition
 %   of the data matrix X whose first dimension is time. X can have any
 %   number of additional spatial dimensions or variable indices. The
@@ -35,27 +35,41 @@ function [L,P,f,A,nWin] = spod_adapt(X,varargin)
 %   between consecutive snapshots to determine a physical frequency F. 
 %
 %   [L,P,F] = SPOD_ADAPT(X,WINDOW,WEIGHT,NOVERLAP,DT,OPTS) specifies options:
-%   OPTS.savefreqs: store results for specified frequencies only [ vector | {all} ]
-%   OPTS.mean: provide a mean that is subtracted from each snapshot [ array of size X | 'blockwise' | {temporal mean of X} ]
-%   OPTS.nsave: number of most energtic modes to be stored [ integer | {all} ]
-%   OPTS.isreal: complex-valuedity of X [{determined from X} | logical ]
+%   OPTS.savefreqs: store results for specified frequencies only [vector | {all}]
+%   OPTS.mean: provide a mean that is subtracted from each snapshot [array of size X | 'blockwise' | {temporal mean of X}]
+%   OPTS.nsave: number of most energtic modes to be stored [integer | {all}]
+%   OPTS.isreal: complex-valuedity of X [{determined from X} | logical]
 %   OPTS.normvar: normalize each block by pointwise variance [{false} | true]
 %   OPTS.compress: lossless time-domain compression for compute and memory efficiency [{false} | true]
 %   OPTS.truncate: number of ranks in compressed data to keep [integer | {all}]
 %   OPTS.adaptive: determine number of windows using adaptive algorithm [{false} | true]
 %   OPTS.tol: convergence tolerance for adaptive algorithm [integer | {1e-6}]
+%   OPTS.conflvl: confidence level [scalar between 0 and 1 | {0.95}]
 %
 %   [L,P,F,A] = SPOD_ADAPT(...) returns the block-wise expansion coefficients in A.
 %
 %   [L,P,F,A,nWin] = SPOD_ADAPT(...) returns the window numbers in nWin.
 %
-%   Reference:
-%     [1] Yeung, B. C. Y., Schmidt, O. T. Adaptive spectral proper orthogonal 
-%         decomposition of broadband-tonal flows, Theor. Comput. Fluid Dyn. 38, 355–374, 2024,
-%         DOI 10.1007/s00162-024-00695-0
+%   [L,P,F,A,nWin,Lc] = SPOD_ADAPT(...) returns the confidence interval Lc of L. By
+%   default, the lower and upper 95% confidence levels of the j-th most
+%   energetic SPOD mode at the i-th frequency are returned in Lc(i,j,1) and
+%   Lc(i,j,2), respectively. The OPTS.conflvl*100% confidence interval is
+%   returned if OPTS.conflvl is set. For example, by setting OPTS.conflvl =
+%   0.99 we obtain the 99% confidence interval. A chi-squared distribution
+%   is used, i.e. we assume a standard normal distribution of the SPOD
+%   eigenvalues. If you use this feature, please cite Yeung et al. [2].
 %
-% B. Yeung (byeung@ucsd.edu) and O. T. Schmidt (oschmidt@ucsd.edu)
-% Last revision: 10-Sep-2024
+%   References:
+%     [1] Yeung, B.C.Y. and Schmidt, O.T., Adaptive spectral proper orthogonal 
+%         decomposition of broadband-tonal flows, Theor. Comput. Fluid Dyn. 2024
+%         DOI 10.1007/s00162-024-00695-0
+%     [2] Yeung, B., Stavropoulos, M.N., Jaunet, V., Jordan, P. and Schmidt, O.T.,
+%         (Why) Jets quantise trapped acoustic modes, arXiv 2026
+%         DOI 10.48550/arXiv.2610.07414
+%
+% B. Yeung (yeung@caltech.edu) and O.T. Schmidt (oschmidt@ucsd.edu)
+% Original script: BY and OTS
+% Last revision:   11-Oct-2026 (BY)
 
 if nargin==6
     opts = varargin{5};
@@ -82,7 +96,7 @@ else
 end
 
 % get default spectral estimation parameters and options
-[weight,nOvlp,dt,nDFT,nBlks,nWin] = spod_parser(nt,nx,isrealx,varargin{:});
+[weight,nOvlp,dt,nDFT,nBlks,nWin,tol] = spod_parser(nt,nx,isrealx,varargin{:});
 
 % Use data mean if not provided through "opts.mean".
 blk_mean    = false;
@@ -126,7 +140,7 @@ if ~isfield(opts,'savefreqs'),              opts.savefreqs  = 1:nFreq;   end
 if ~isfield(opts,'normvar'),                opts.normvar    = false;     end
 if ~isfield(opts,'compress'),               opts.compress   = false;     end
 if ~isfield(opts,'truncate'),               opts.truncate   = 0;         end
-if isempty(nWin) && ~isfield(opts,'tol'),   opts.tol        = 1e-6;      end
+if ~isfield(opts,'conflvl'),                opts.conflvl    = 0.95;      end
 
 % switch off compression for small data
 if opts.compress && nx<=nt
@@ -161,7 +175,7 @@ end
 disp(' ')
 disp('Calculating temporal DFT')
 disp('------------------------------------')
-Q_hat = zeros(nDFT*2,nx,nBlks,precision);
+Q_hat = zeros(nx,nBlks,nDFT*2,precision);
 for iBlk    = 1:nBlks
         
         % get time index for present block
@@ -193,12 +207,11 @@ for iBlk    = 1:nBlks
         % Fourier transform block using zero-padded FFT
         Q_blk = cat(1,Q_blk,zeros(nDFT,nx,precision));
         Q_blk = sqrt(dt)*fft(Q_blk);
-        Q_hat(:,:,iBlk)         = Q_blk;
+        Q_hat(:,iBlk,:) = permute(Q_blk,[2 3 1]);
 end
 clear Q_blk Q_blk_hat
 
 % losslessly compressed data can optionally be truncated, resulting in lossy compression
-Q_hat = permute(Q_hat,[2 3 1]);
 if opts.compress && opts.truncate
     Q_hat_full = Q_hat;
     nx = opts.truncate;
@@ -207,7 +220,7 @@ end
 
 % get adaptive windows
 if isempty(nWin)
-    nWin = adaptiveWindows(Q_hat,wrapIdx,sinetapNorm,opts);
+    nWin = adaptiveWindows(Q_hat,wrapIdx,sinetapNorm,tol,opts);
 end
 
 % always compute final results on untruncated data
@@ -225,7 +238,11 @@ else
 end
 disp('------------------------------------')
 nSamples    = nBlks*max(nWin);
-if ~isfield(opts,'nsave'), opts.nsave = nBlks*min(nWin(1:opts.savefreqs(end))); end
+if ~isfield(opts,'nsave')
+    opts.nsave = nBlks*min(nWin(1:opts.savefreqs(end)));
+else
+    opts.nsave = min(opts.nsave, nBlks*min(nWin(1:opts.savefreqs(end))));
+end
 L   = zeros(nFreq,nSamples,precision);
 A   = zeros(nFreq,nSamples,nSamples,precision);
 P   = zeros(opts.savefreqs(end),nx,opts.nsave,precision);
@@ -257,7 +274,7 @@ for iFreq = opts.savefreqs
     Lambda              = diag(Lambda);
     [Lambda,idx]        = sort(Lambda,'descend');
     Theta               = Theta(:,idx);
-    Psi                 = Q_hat_f*Theta(:,1:opts.nsave)*diag(1./sqrt(Lambda(1:opts.nsave))/sqrt(nSamples));
+    Psi                 = Q_hat_f*Theta(:,1:opts.nsave)*diag(1./sqrt(Lambda(1:opts.nsave)));
     P(iFreq,:,:)        = Psi(:,1:opts.nsave);
     A(iFreq,1:nSamples,1:nSamples)        = diag(sqrt(Lambda))*Theta'.*sqrt(1./taperWelchWeights);
     L(iFreq,1:nSamples)          = abs(Lambda);
@@ -281,14 +298,15 @@ P   = reshape(P,[opts.savefreqs(end) dim(2:end) opts.nsave]);
 % return the same number of eigenvalues and coefficients for all frequencies
 A   = A(:,1:nBlks*min(nWin(1:opts.savefreqs(end))),:);
 L   = L(:,1:nBlks*min(nWin(1:opts.savefreqs(end))));
+Lc  = getConfidence(L,nBlks,reshape(nWin(opts.savefreqs),[],1),opts.conflvl);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [weight,nOvlp,dt,nDFT,nBlks,nWin] = spod_parser(nt,nx,isrealx,varargin)
+function [weight,nOvlp,dt,nDFT,nBlks,nWin,tol] = spod_parser(nt,nx,isrealx,varargin)
 %SPOD_PARSER Parser for SPOD parameters
 
 % read input arguments from cell array
-window = []; weight = []; nOvlp = []; dt = []; adaptive = false;
+window = []; weight = []; nOvlp = []; dt = []; adaptive = false; tol = [];
 nvarargin = length(varargin);
 
 if nvarargin >= 1
@@ -390,7 +408,13 @@ disp(['No. of blocks             : ' num2str(nBlks)])
 disp(['Windowing fct. (time)     : ' window_name])
 disp(['Weighting fct. (space)    : ' weight_name])
 if adaptive
-    disp(num2str(opts.tol,'No. of windows            : adaptive tol = %g'))
+    if isfield(opts,'tol')
+        tol = opts.tol;
+        disp(num2str(tol,'No. of windows            : adaptive tol = %g'))
+    else
+        tol = 1e-6;
+        disp(num2str(tol,'No. of windows            : default adaptive tol = %g'))
+    end
 elseif max(nWin)==min(nWin)
     disp(['No. of windows            : ' num2str(nWin(1))])
 else
@@ -401,9 +425,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [mu_k] = parabWeights(K)
 %PARABWEIGHTS Parabolic weights corresponding to K sine tapers
-    Nk = K*(4*K-1)*(K+1)/6;
-    k = (1:K).';
-    mu_k = 1/Nk*(K^2-(k-1).^2);
+Nk = K*(4*K-1)*(K+1)/6;
+k = (1:K).';
+mu_k = 1/Nk*(K^2-(k-1).^2);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -415,7 +439,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function similarity = calcModeSimilar(q1,q2)
 %MODESIMILAR calculates the similarity between complex SPOD modes q1 and q2
-
 q1 = double(q1(:));
 q2 = double(q2(:));
 
@@ -424,7 +447,7 @@ similarity = abs(similarity);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function nWin = adaptiveWindows(Q_hat,wrapIdx,sinetapNorm,opts)
+function nWin = adaptiveWindows(Q_hat,wrapIdx,sinetapNorm,tol,opts)
 %ADAPTIVEWINDOWS implements the adaptive algorithm and returns a frequency-dependent nWin
 
 % get data parameters
@@ -492,7 +515,7 @@ while ~allConverged
         % check if mode is converged
         if nTapers>nTapers_init
             similarity = calcModeSimilar(P_prev(iFreq,:),P(iFreq,:));
-            if (1-similarity)<=opts.tol
+            if (1-similarity)<=tol
                 nWin(iFreq) = nTapers;
             else
                 if iFreq<opts.savefreqs(end)
@@ -512,4 +535,20 @@ while ~allConverged
         allConverged = true;
     end
 end
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function Lc = getConfidence(L,nBlks,nWin,conflvl)
+%GETCONFIDENCE calculates conflvl*100% confidence intervals around L based
+%on Percival & Walden's (2020) derivations
+sum_mu = zeros(size(nWin));
+for i = 1:length(sum_mu)
+    sum_mu(i) = sum(parabWeights(nWin(i)).^2);
+end
+nu = 2*nBlks./sum_mu; % degrees of freedom
+xi2_lower = 2*gammaincinv(conflvl,nu/2);
+xi2_upper = 2*gammaincinv(1-conflvl,nu/2);
+L_lower = nu.*L./xi2_lower;
+L_upper = nu.*L./xi2_upper;
+Lc = cat(3,L_lower,L_upper);
 end
